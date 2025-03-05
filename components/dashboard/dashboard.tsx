@@ -1,4 +1,3 @@
-// components/dashboard/dashboard.tsx
 "use client";
 
 import { Bar } from "react-chartjs-2";
@@ -10,10 +9,33 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Sidebar from "@/components/dashboard/Sidebar";
+import {useEffect, useState} from "react";
+import {loadRecentUsers, loadTotalUsersValues, RecentUser} from "@/components/dashboard/action";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export default function Dashboard() {
+  const [dataUsers, setDataUsers] = useState({
+    total:0,
+    motorizados:0,
+    secretario:0,
+  });
+  const [recentUsers, setRecentUsers] = useState<List<RecentUser>>([])
+  async function loadData(){
+    const [total, users] = await Promise.all([
+        loadTotalUsersValues(),
+        loadRecentUsers()
+    ])
+    console.log( users)
+    setDataUsers(total)
+    setRecentUsers(users)
+
+  }
+  useEffect(() => {
+    loadData();
+  }, []);
+
+
   const chartOptions = {
     responsive: true,
     plugins: {
@@ -35,9 +57,9 @@ export default function Dashboard() {
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
             {[
-              { title: "Total Usuarios", value: "1,234", icon: Users },
-              { title: "Total Motorizados", value: "5,678", icon: PieChart },
-              { title: "Total Secretaria", value: "25", icon: Settings },
+              { title: "Total Usuarios", value: dataUsers.total, icon: Users },
+              { title: "Total Motorizados", value:dataUsers.motorizados, icon: PieChart },
+              { title: "Total Secretaria", value: dataUsers.secretario, icon: Settings },
             ].map((stat, index) => (
               <Card key={index}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -65,30 +87,28 @@ export default function Dashboard() {
                     <TableHead>Nombre</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Rol</TableHead>
-                    <TableHead>Acciones</TableHead>
+
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {[1, 2, 3].map((item) => (
-                    <TableRow key={item}>
+                  {recentUsers.map((item:RecentUser) => (
+                    <TableRow key={item.id}>
                       <TableCell className="font-medium">
                         <div className="flex items-center">
                           <Avatar className="h-8 w-8 mr-2">
                             <AvatarImage src={`https://randomuser.me/api/portraits/men/${item}.jpg`} />
-                            <AvatarFallback>U{item}</AvatarFallback>
+                            <AvatarFallback>{item.name.substring(0,1)}</AvatarFallback>
                           </Avatar>
-                          <span>Usuario {item}</span>
+                          {item.name}
                         </div>
                       </TableCell>
-                      <TableCell>usuario{item}@example.com</TableCell>
+                      <TableCell>{item.email}</TableCell>
                       <TableCell>
                         <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-                          Activo
+                          {item.rol}
                         </span>
                       </TableCell>
-                      <TableCell>
-                        <Button variant="link">Editar</Button>
-                      </TableCell>
+
                     </TableRow>
                   ))}
                 </TableBody>
