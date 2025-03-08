@@ -3,40 +3,40 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Clock, Calendar, Fingerprint, Utensils, CheckCircle, AlertCircle } from "lucide-react"
+import { Clock, Calendar, Fingerprint, Coffee, CheckCircle, AlertCircle } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 
-interface MotorizadoData {
+interface SecretarioData {
   name: string
   id: string
   startTime: string | null
   endTime: string | null
-  lunchStartTime: string | null
-  lunchEndTime: string | null
+  breakStartTime: string | null
+  breakEndTime: string | null
   date: string
-  status: "active" | "inactive" | "lunch"
+  status: "active" | "inactive" | "break"
 }
 
-const mockMotorizadoData: MotorizadoData = {
-  name: "Juan Pérez",
-  id: "M001",
+const mockSecretarioData: SecretarioData = {
+  name: "Ana Martínez",
+  id: "S001",
   startTime: null,
   endTime: null,
-  lunchStartTime: null,
-  lunchEndTime: null,
+  breakStartTime: null,
+  breakEndTime: null,
   date: new Date().toISOString().split("T")[0],
   status: "inactive",
 }
 
-const WORK_START_TIME = "07:00:00"
-const WORK_END_TIME = "16:00:00"
+const WORK_START_TIME = "08:00:00"
+const WORK_END_TIME = "17:00:00"
 
-export default function Motorizado() {
-  const [motorizadoData, setMotorizadoData] = useState<MotorizadoData>(mockMotorizadoData)
+export default function Secretario() {
+  const [secretarioData, setSecretarioData] = useState<SecretarioData>(mockSecretarioData)
   const [currentTime, setCurrentTime] = useState<string>("")
   const [isScanning, setIsScanning] = useState(false)
-  const [scanType, setScanType] = useState<"checkIn" | "checkOut" | "lunchStart" | "lunchEnd" | null>(null)
+  const [scanType, setScanType] = useState<"checkIn" | "checkOut" | "breakStart" | "breakEnd" | null>(null)
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -47,16 +47,16 @@ export default function Motorizado() {
   }, [])
 
   const calculateElapsedTime = () => {
-    if (!motorizadoData.startTime) return "No iniciado"
-    const start = new Date(`${motorizadoData.date}T${motorizadoData.startTime}`)
-    const end = motorizadoData.endTime ? new Date(`${motorizadoData.date}T${motorizadoData.endTime}`) : new Date()
+    if (!secretarioData.startTime) return "No iniciado"
+    const start = new Date(`${secretarioData.date}T${secretarioData.startTime}`)
+    const end = secretarioData.endTime ? new Date(`${secretarioData.date}T${secretarioData.endTime}`) : new Date()
     let diff = end.getTime() - start.getTime()
 
-    // Subtract lunch time if applicable
-    if (motorizadoData.lunchStartTime && motorizadoData.lunchEndTime) {
-      const lunchStart = new Date(`${motorizadoData.date}T${motorizadoData.lunchStartTime}`)
-      const lunchEnd = new Date(`${motorizadoData.date}T${motorizadoData.lunchEndTime}`)
-      diff -= lunchEnd.getTime() - lunchStart.getTime()
+    // Subtract break time if applicable
+    if (secretarioData.breakStartTime && secretarioData.breakEndTime) {
+      const breakStart = new Date(`${secretarioData.date}T${secretarioData.breakStartTime}`)
+      const breakEnd = new Date(`${secretarioData.date}T${secretarioData.breakEndTime}`)
+      diff -= breakEnd.getTime() - breakStart.getTime()
     }
 
     const hours = Math.floor(diff / 3600000)
@@ -65,16 +65,16 @@ export default function Motorizado() {
   }
 
   const calculateLateTime = () => {
-    if (!motorizadoData.startTime) return "N/A"
-    const start = new Date(`${motorizadoData.date}T${motorizadoData.startTime}`)
-    const expectedStart = new Date(`${motorizadoData.date}T${WORK_START_TIME}`)
+    if (!secretarioData.startTime) return "N/A"
+    const start = new Date(`${secretarioData.date}T${secretarioData.startTime}`)
+    const expectedStart = new Date(`${secretarioData.date}T${WORK_START_TIME}`)
     if (start <= expectedStart) return "A tiempo"
     const diff = start.getTime() - expectedStart.getTime()
     const minutes = Math.floor(diff / 60000)
     return `${minutes} minutos`
   }
 
-  const handleScanRequest = (type: "checkIn" | "checkOut" | "lunchStart" | "lunchEnd") => {
+  const handleScanRequest = (type: "checkIn" | "checkOut" | "breakStart" | "breakEnd") => {
     setScanType(type)
     setIsScanning(true)
   }
@@ -85,30 +85,30 @@ export default function Motorizado() {
 
     switch (scanType) {
       case "checkIn":
-        setMotorizadoData((prev) => ({
+        setSecretarioData((prev) => ({
           ...prev,
           startTime: currentTimeStr,
           status: "active",
         }))
         break
       case "checkOut":
-        setMotorizadoData((prev) => ({
+        setSecretarioData((prev) => ({
           ...prev,
           endTime: currentTimeStr,
           status: "inactive",
         }))
         break
-      case "lunchStart":
-        setMotorizadoData((prev) => ({
+      case "breakStart":
+        setSecretarioData((prev) => ({
           ...prev,
-          lunchStartTime: currentTimeStr,
-          status: "lunch",
+          breakStartTime: currentTimeStr,
+          status: "break",
         }))
         break
-      case "lunchEnd":
-        setMotorizadoData((prev) => ({
+      case "breakEnd":
+        setSecretarioData((prev) => ({
           ...prev,
-          lunchEndTime: currentTimeStr,
+          breakEndTime: currentTimeStr,
           status: "active",
         }))
         break
@@ -117,10 +117,10 @@ export default function Motorizado() {
   }
 
   const getStatusColor = () => {
-    switch (motorizadoData.status) {
+    switch (secretarioData.status) {
       case "active":
         return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-      case "lunch":
+      case "break":
         return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
       case "inactive":
         return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
@@ -128,27 +128,27 @@ export default function Motorizado() {
   }
 
   const isLate = () => {
-    if (!motorizadoData.startTime) return false
-    const start = new Date(`${motorizadoData.date}T${motorizadoData.startTime}`)
-    const expectedStart = new Date(`${motorizadoData.date}T${WORK_START_TIME}`)
+    if (!secretarioData.startTime) return false
+    const start = new Date(`${secretarioData.date}T${secretarioData.startTime}`)
+    const expectedStart = new Date(`${secretarioData.date}T${WORK_START_TIME}`)
     return start > expectedStart
   }
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Panel de Motorizado</h1>
+      <h1 className="text-2xl font-bold mb-4">Panel de Secretario</h1>
       <Card className="shadow-lg border-t-4 border-t-blue-500">
         <CardHeader className="pb-2">
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle className="text-xl">{motorizadoData.name}</CardTitle>
-              <CardDescription>ID: {motorizadoData.id}</CardDescription>
+              <CardTitle className="text-xl">{secretarioData.name}</CardTitle>
+              <CardDescription>ID: {secretarioData.id}</CardDescription>
             </div>
             <Badge className={`text-sm px-3 py-1 ${getStatusColor()}`}>
-              {motorizadoData.status === "active"
+              {secretarioData.status === "active"
                 ? "Activo"
-                : motorizadoData.status === "lunch"
-                  ? "Almuerzo"
+                : secretarioData.status === "break"
+                  ? "En pausa"
                   : "Inactivo"}
             </Badge>
           </div>
@@ -161,7 +161,7 @@ export default function Motorizado() {
             </div>
             <div className="flex items-center justify-center p-4 bg-secondary/50 rounded-lg shadow-inner">
               <Calendar className="mr-2 h-5 w-5 text-blue-600" />
-              <span className="text-lg font-semibold">{motorizadoData.date}</span>
+              <span className="text-lg font-semibold">{secretarioData.date}</span>
             </div>
           </div>
 
@@ -173,21 +173,21 @@ export default function Motorizado() {
                   <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
                   Entrada:
                 </span>
-                <Badge variant={motorizadoData.startTime ? "outline" : "secondary"} className="font-mono">
-                  {motorizadoData.startTime || "No registrado"}
+                <Badge variant={secretarioData.startTime ? "outline" : "secondary"} className="font-mono">
+                  {secretarioData.startTime || "No registrado"}
                 </Badge>
               </div>
 
               <div className="flex justify-between items-center">
                 <span className="flex items-center">
-                  <Utensils className="mr-2 h-4 w-4 text-muted-foreground" />
-                  Almuerzo:
+                  <Coffee className="mr-2 h-4 w-4 text-muted-foreground" />
+                  Pausa:
                 </span>
                 <Badge variant="outline" className="font-mono">
-                  {motorizadoData.lunchStartTime && motorizadoData.lunchEndTime
-                    ? `${motorizadoData.lunchStartTime} - ${motorizadoData.lunchEndTime}`
-                    : motorizadoData.lunchStartTime
-                      ? `${motorizadoData.lunchStartTime} - En curso`
+                  {secretarioData.breakStartTime && secretarioData.breakEndTime
+                    ? `${secretarioData.breakStartTime} - ${secretarioData.breakEndTime}`
+                    : secretarioData.breakStartTime
+                      ? `${secretarioData.breakStartTime} - En curso`
                       : "No registrado"}
                 </Badge>
               </div>
@@ -197,8 +197,8 @@ export default function Motorizado() {
                   <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
                   Salida:
                 </span>
-                <Badge variant={motorizadoData.endTime ? "outline" : "secondary"} className="font-mono">
-                  {motorizadoData.endTime || "No registrado"}
+                <Badge variant={secretarioData.endTime ? "outline" : "secondary"} className="font-mono">
+                  {secretarioData.endTime || "No registrado"}
                 </Badge>
               </div>
             </div>
@@ -222,7 +222,7 @@ export default function Motorizado() {
                   <>
                     <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
                     <p className="text-lg font-semibold text-green-500">
-                      {motorizadoData.startTime ? "A tiempo" : "Pendiente"}
+                      {secretarioData.startTime ? "A tiempo" : "Pendiente"}
                     </p>
                   </>
                 )}
@@ -233,7 +233,7 @@ export default function Motorizado() {
           <div className="flex flex-wrap justify-center gap-3 mt-6">
             <Button
               onClick={() => handleScanRequest("checkIn")}
-              disabled={!!motorizadoData.startTime}
+              disabled={!!secretarioData.startTime}
               className="bg-blue-600 hover:bg-blue-700"
               size="lg"
             >
@@ -242,28 +242,28 @@ export default function Motorizado() {
             </Button>
 
             <Button
-              onClick={() => handleScanRequest("lunchStart")}
-              disabled={!motorizadoData.startTime || !!motorizadoData.lunchStartTime || !!motorizadoData.endTime}
+              onClick={() => handleScanRequest("breakStart")}
+              disabled={!secretarioData.startTime || !!secretarioData.breakStartTime || !!secretarioData.endTime}
               variant="outline"
               size="lg"
             >
-              <Utensils className="mr-2 h-4 w-4" />
-              Iniciar Almuerzo
+              <Coffee className="mr-2 h-4 w-4" />
+              Iniciar Pausa
             </Button>
 
             <Button
-              onClick={() => handleScanRequest("lunchEnd")}
-              disabled={!motorizadoData.lunchStartTime || !!motorizadoData.lunchEndTime}
+              onClick={() => handleScanRequest("breakEnd")}
+              disabled={!secretarioData.breakStartTime || !!secretarioData.breakEndTime}
               variant="outline"
               size="lg"
             >
               <CheckCircle className="mr-2 h-4 w-4" />
-              Finalizar Almuerzo
+              Finalizar Pausa
             </Button>
 
             <Button
               onClick={() => handleScanRequest("checkOut")}
-              disabled={!motorizadoData.startTime || !!motorizadoData.endTime}
+              disabled={!secretarioData.startTime || !!secretarioData.endTime}
               className="bg-blue-600 hover:bg-blue-700"
               size="lg"
             >
@@ -282,9 +282,9 @@ export default function Motorizado() {
                 ? "Registrar Entrada"
                 : scanType === "checkOut"
                   ? "Registrar Salida"
-                  : scanType === "lunchStart"
-                    ? "Iniciar Almuerzo"
-                    : "Finalizar Almuerzo"}
+                  : scanType === "breakStart"
+                    ? "Iniciar Pausa"
+                    : "Finalizar Pausa"}
             </DialogTitle>
             <DialogDescription>Por favor, coloque su dedo en el lector de huellas digitales</DialogDescription>
           </DialogHeader>
