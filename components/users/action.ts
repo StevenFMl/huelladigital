@@ -1,10 +1,8 @@
 "use server";
 
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
-import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import {createClient} from "@/utils/supabase/server";
 
 // Types
 export interface User {
@@ -29,8 +27,8 @@ export interface UserFormData {
 
 // Server actions
 export async function getUsers() {
-  const supabase = createServerComponentClient({ cookies });
-  
+   const supabase = await createClient();
+
   try {
     const { data, error } = await supabase
       .from('users')
@@ -57,8 +55,7 @@ export async function getUsers() {
 }
 
 export async function createUser(userData: UserFormData) {
-  console.log("Enviando datos del usuario:", userData);
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = await createClient();
 
   try {
     const password = userData.password || userData.cedula || generateSecurePassword();
@@ -66,14 +63,7 @@ export async function createUser(userData: UserFormData) {
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email: userData.email,
       password,
-      email_confirm: true,
-      user_metadata: {
-        name: userData.name,
-        email: userData.email,
-        identification: userData.cedula,
-        rol: userData.role,
-        state: userData.status === "Activo",
-      }
+      email_confirm: true
     });
 
     if (authError) throw authError;
@@ -92,29 +82,22 @@ export async function createUser(userData: UserFormData) {
         state: userData.status === "Activo",
         created_at: new Date().toISOString()
       });
-
-    if (dbError) throw dbError;
-
-    revalidatePath('/users');
     return { success: true, error: null };
   } catch (error: any) {
-    console.error("Error al crear usuario:", error);
     return { success: false, error: error.message || "Error al crear usuario" };
   }
 }
 
 export async function updateUser(userId: string, userData: Omit<UserFormData, 'password'>) {
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = await createClient();
   
   try {
     const { error: authError } = await supabase.auth.admin.updateUserById(
       userId,
       { 
-        user_metadata: { 
-          name: userData.name,
-          role: userData.role 
-        },
-        email: userData.email
+
+        email: userData.email,
+        password:userData.cedula
       }
     );
 
@@ -133,7 +116,6 @@ export async function updateUser(userId: string, userData: Omit<UserFormData, 'p
 
     if (dbError) throw dbError;
 
-    revalidatePath('/users');
     return { success: true, error: null };
   } catch (error: any) {
     console.error("Error updating user:", error);
@@ -142,7 +124,7 @@ export async function updateUser(userId: string, userData: Omit<UserFormData, 'p
 }
 
 export async function deleteUser(userId: string) {
-  const supabase = createServerComponentClient({ cookies });
+  const supabase = await createClient();
   
   try {
     const { error: authError } = await supabase.auth.admin.deleteUser(userId);
@@ -154,11 +136,8 @@ export async function deleteUser(userId: string) {
       .eq('id', userId);
 
     if (dbError) throw dbError;
-
-    revalidatePath('/users');
     return { success: true, error: null };
   } catch (error: any) {
-    console.error("Error deleting user:", error);
     return { success: false, error: error.message || "Failed to delete user" };
   }
 }

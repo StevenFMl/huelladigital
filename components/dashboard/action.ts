@@ -25,9 +25,9 @@ export async function loadTotalUsersValues(){
     let secretario = 0;
     for (let i = 0; i < data!.length; i++) {
         const item = data[i];
-        if(item.rol=="motorizado"){
+        if(item.rol=="Motorizado"){
             motorizados+=1;
-        }else if (item.rol =="secretario"){
+        }else if (item.rol =="Secretario"){
             secretario+=1;
         }
 
@@ -51,4 +51,12 @@ export async function loadRecentUsers():Promise<RecentUser[]>{
         return item.user_id;
     })
     return users  as RecentUser[];
+}
+
+
+
+export async function logoutOfSupabase(){
+    const supabase = await createClient();
+
+    await supabase.auth.signOut();
 }

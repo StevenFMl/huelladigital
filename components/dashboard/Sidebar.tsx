@@ -1,7 +1,9 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import {usePathname, useRouter} from "next/navigation";
 import { Home, Users, Truck, FileText, LogOut, ChevronRight } from "lucide-react";
+import {Button} from "@/components/ui/button";
+import {logoutOfSupabase} from "@/components/dashboard/action";
 
 const menuItems = [
   { href: "/dashboard", icon: Home, label: "Inicio" },
@@ -12,9 +14,37 @@ const menuItems = [
   { href: "/login", icon: LogOut, label: "Cerrar sesión" },
 ];
 
-export default function Sidebar() {
-  const pathname = usePathname();
+const menuMotorizado = [
+  { href: "/dashboard", icon: Home, label: "Inicio" },
+  { href: "/dashboard/motorizado", icon: Truck, label: "Motorizados" },
+  { href: "/login", icon: LogOut, label: "Cerrar sesión" },
+];
 
+const menuSecretaria = [
+  { href: "/dashboard", icon: Home, label: "Inicio" },
+  { href: "/dashboard/users", icon: Users, label: "Usuarios" },
+  { href: "/dashboard/secretario", icon: FileText, label: "Secretaria" },
+  { href: "/dashboard/reportes", icon: FileText, label: "Reportes" },
+  { href: "/login", icon: LogOut, label: "Cerrar sesión" },
+];
+
+
+export default function Sidebar({rol}:{rol:string}) {
+  const pathname = usePathname();
+  const router = useRouter();
+  function generateSidebar(){
+    if(rol==="Admin"){
+      return menuItems;
+    }
+    if (rol==="Secretario"){
+      return menuSecretaria
+    }
+    if(rol==="Motorizado"){
+      return menuMotorizado;
+
+    }
+    return []
+  }
   return (
     <aside className="w-64 border-r border-border bg-gradient-to-b from-background to-secondary/10">
       <div className="px-6 py-6">
@@ -29,22 +59,26 @@ export default function Sidebar() {
       </div>
       <nav>
         <ul>
-          {menuItems.map((item) => (
+          {generateSidebar().map((item) => (
             <li key={item.href}>
-              <Link
-                href={item.href}
-                className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+              <Button onClick={async(e)=>{
+                e.preventDefault();
+                if(item.href === "/login") {
+                  await logoutOfSupabase();
+                }
+                router.push(item.href);
+              }} variant="ghost" className={`flex w-full hover:bg-black hover:text-white items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                   pathname === item.href
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-secondary hover:text-secondary-foreground"
-                }`}
-              >
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-secondary hover:text-secondary-foreground"
+              }`} >
                 <item.icon className="h-4 w-4" />
                 <span>{item.label}</span>
                 {item.label !== "Cerrar sesión" && (
-                  <ChevronRight className="ml-auto h-4 w-4" />
+                    <ChevronRight className="ml-auto h-4 w-4" />
                 )}
-              </Link>
+              </Button>
+
             </li>
           ))}
         </ul>

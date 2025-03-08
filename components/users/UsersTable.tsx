@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import UserForm from "./UsersForm"
 import { getUsers, createUser, updateUser, deleteUser,  } from "@/components/users/action"
 import type { User, UserFormData } from "@/components/users/action"
+import { toast } from "nextjs-toast-notify";
 
 export default function UsersTable() {
   const [users, setUsers] = useState<User[]>([])
@@ -27,26 +28,17 @@ export default function UsersTable() {
   const [currentPage, setCurrentPage] = useState(1)
   const usersPerPage = 10
 
+  async function loadUser(){
+    setIsLoading(true)
+    const { users: fetchedUsers, error } = await getUsers()
+    setUsers(fetchedUsers)
+    setIsLoading(false)
+  }
   // Fetch users on component mount
   useEffect(() => {
-    const fetchUsers = async () => {
-      setIsLoading(true)
-      const { users: fetchedUsers, error } = await getUsers()
-      
-      if (error) {
-        toast({
-          title: "Error",
-          description: `Error al cargar usuarios: ${error}`,
-          variant: "destructive"
-        })
-      } else {
-        setUsers(fetchedUsers)
-      }
-      setIsLoading(false)
-    }
 
-    fetchUsers()
-  }, [toast])
+  loadUser();
+  }, [])
 
   const handleEdit = (user: User) => {
     setSelectedUser(user)
@@ -58,18 +50,25 @@ export default function UsersTable() {
       const { success, error } = await deleteUser(userId)
       
       if (success) {
-        setUsers(users.filter((user) => user.id !== userId))
-        toast({
-          title: "Usuario eliminado",
-          description: "El usuario ha sido eliminado exitosamente",
-          variant: ""
-        })
+        toast.success(`¡Usuario Eliminado!`, {
+          duration: 4000,
+          progress: true,
+          position: "top-right",
+          transition: "bounceIn",
+          icon: '',
+          sound: true,
+        });
+
+        await loadUser();
       } else {
-        toast({
-          title: "Error",
-          description: `Error al eliminar usuario: ${error}`,
-          variant: "destructive"
-        })
+        toast.success(`¡Error: ${error} !`, {
+          duration: 4000,
+          progress: true,
+          position: "top-right",
+          transition: "bounceIn",
+          icon: '',
+          sound: true,
+        });
       }
     }
   }
@@ -87,43 +86,52 @@ export default function UsersTable() {
       const { success, error } = await updateUser(selectedUser.id, userData)
       
       if (success) {
-        // Refresh the users list
-        const { users: fetchedUsers } = await getUsers()
-        setUsers(fetchedUsers)
-        
-        toast({
-          title: "Usuario actualizado",
-          description: "El usuario ha sido actualizado exitosamente",
-          variant: ""
-        })
+        toast.success(`¡Usuario Actualizado!`, {
+          duration: 4000,
+          progress: true,
+          position: "top-right",
+          transition: "bounceIn",
+          icon: '',
+          sound: true,
+        });
+        await loadUser();
+
+
       } else {
-        toast({
-          title: "Error",
-          description: `Error al actualizar usuario: ${error}`,
-          variant: "destructive"
-        })
+        toast.success(`¡Error: ${error} !`, {
+          duration: 4000,
+          progress: true,
+          position: "top-right",
+          transition: "bounceIn",
+          icon: '',
+          sound: true,
+        });
       }
     } else {
       // Add new user
       const { success, error } = await createUser(userData)
-      
-      if (success) {
-        // Refresh the users list
-        const { users: fetchedUsers } = await getUsers()
-        setUsers(fetchedUsers)
-        
-        toast({
-          title: "Usuario creado",
-          description: "El usuario ha sido creado exitosamente",
-          variant: ""
-        })
-      } else {
-        toast({
-          title: "Error",
-          description: `Error al crear usuario: ${error}`,
-          variant: "destructive"
-        })
+      if(success==true){
+        toast.success(`¡Usuario Creado!`, {
+          duration: 4000,
+          progress: true,
+          position: "top-right",
+          transition: "bounceIn",
+          icon: '',
+          sound: true,
+        });
+        await loadUser();
+
+      }else{
+        toast.success(`¡Error: ${error} !`, {
+          duration: 4000,
+          progress: true,
+          position: "top-right",
+          transition: "bounceIn",
+          icon: '',
+          sound: true,
+        });
       }
+
     }
   }
 
@@ -256,8 +264,4 @@ export default function UsersTable() {
       </Dialog>
     </div>
   )
-}
-
-function toast(arg0: { title: string; description: string; variant: string }) {
-  throw new Error("Function not implemented.")
 }
