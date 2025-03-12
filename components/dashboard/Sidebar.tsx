@@ -8,8 +8,6 @@ import {logoutOfSupabase} from "@/components/dashboard/action";
 const menuItems = [
   { href: "/dashboard", icon: Home, label: "Inicio" },
   { href: "/dashboard/users", icon: Users, label: "Usuarios" },
-  { href: "/dashboard/motorizado", icon: Truck, label: "Motorizados" },
-  { href: "/dashboard/secretario", icon: FileText, label: "Secretaria" },
   { href: "/dashboard/reportes", icon: FileText, label: "Reportes" },
   { href: "/login", icon: LogOut, label: "Cerrar sesión" },
 ];

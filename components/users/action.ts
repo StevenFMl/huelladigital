@@ -33,7 +33,7 @@ export async function getUsers() {
     const { data, error } = await supabase
       .from('users')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false }).limit(300)
 
     if (error) throw error;
 

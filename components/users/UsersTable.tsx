@@ -149,7 +149,7 @@ export default function UsersTable() {
   }
 
   return (
-    <div>
+    <div className="h-screen bg-background">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Usuarios</h2>
         <Button onClick={handleNewUser}>
