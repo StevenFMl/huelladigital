@@ -11,3 +11,13 @@ export async function loadUserInformation(){
     return resultUser.data![0].rol;
 
 }
+
+export async function loadUserInformationID(){
+    const supabase = await createClient();
+    const responseUser = await supabase.auth.getUser();
+    const idUser = await responseUser.data.user?.id;
+    const resultUser = await supabase.from('users').select("id").eq("id",idUser);
+
+    return resultUser.data![0].id;
+
+}

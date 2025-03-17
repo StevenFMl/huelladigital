@@ -33,7 +33,7 @@ export async function getUsers() {
     const { data, error } = await supabase
       .from('users')
       .select('*')
-      .order('created_at', { ascending: false }).limit(300)
+      .order('created_at', { ascending: false }).limit(500)
 
     if (error) throw error;
 
@@ -54,6 +54,10 @@ export async function getUsers() {
   }
 }
 
+
+
+
+
 export async function createUser(userData: UserFormData) {
   const supabase = await createClient();
 
@@ -70,7 +74,11 @@ export async function createUser(userData: UserFormData) {
 
     const userId = authData.user?.id;
     if (!userId) throw new Error("No se obtuvo un ID de usuario después de la creación.");
-
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const dateParsed = `${year}-${month}-${day}`
     const { error: dbError } = await supabase
       .from('users')
       .insert({
@@ -81,6 +89,10 @@ export async function createUser(userData: UserFormData) {
         rol: userData.role,
         state: userData.status === "Activo",
         created_at: new Date().toISOString()
+      });
+      await supabase.from("reports").insert({
+        user_id: userId,
+        date: dateParsed,
       });
     return { success: true, error: null };
   } catch (error: any) {

@@ -12,7 +12,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
     <div className="flex">
       <Sidebar rol={rol} />
       <div className="flex-1">
-      <TopBar />
+      <TopBar  rol={rol} />
       <main className="flex-1 p-6">{children}</main>
     </div>
     </div>

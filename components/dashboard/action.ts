@@ -43,7 +43,13 @@ export async function loadTotalUsersValues(){
 
 export async function loadRecentUsers():Promise<RecentUser[]>{
     const supabase = await createClient();
-    const {data, error} = await supabase.from('reports').select("user_id (*)").order("created_at",{ ascending: false } ).limit(10);
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const dateParsed = `${year}-${month}-${day}`
+    const {data, error} = await supabase.from('reports').select("*,user_id (*)").eq('date', dateParsed)
+        .not('enter', 'is', null).limit(10)
     if(error){
         return []
     }

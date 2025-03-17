@@ -1,14 +1,10 @@
 "use client";
 
-import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
 import { PieChart, Users, Settings } from 'lucide-react';
-import TopBar from "@/components/dashboard/TopBar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import Sidebar from "@/components/dashboard/Sidebar";
 import {useEffect, useState} from "react";
 import {loadRecentUsers, loadTotalUsersValues, RecentUser} from "@/components/dashboard/action";
 
@@ -34,20 +30,6 @@ export default function Dashboard() {
   useEffect(() => {
     loadData();
   }, []);
-
-
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "top" as const,
-      },
-      title: {
-        display: true,
-        text: "Ventas Mensuales",
-      },
-    },
-  };
 
   return (
     <div className="flex h-screen bg-background">
