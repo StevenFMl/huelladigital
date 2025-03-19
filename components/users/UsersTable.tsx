@@ -41,6 +41,7 @@ export default function UsersTable() {
   }, [])
 
   const handleEdit = (user: User) => {
+    console.log(user);
     setSelectedUser(user)
     setIsDialogOpen(true)
   }

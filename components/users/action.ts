@@ -13,6 +13,7 @@ export interface User {
   status: "Activo" | "Inactivo";
   fingerprintRegistered: boolean;
   cedula?: string;
+  id_hikvision:number;
 }
 
 export interface UserFormData {
@@ -23,6 +24,7 @@ export interface UserFormData {
   role: string;
   status: "Activo" | "Inactivo";
   fingerprintRegistered: boolean;
+  id_hikvision:number;
 }
 
 // Server actions
@@ -36,7 +38,7 @@ export async function getUsers() {
       .order('created_at', { ascending: false }).limit(500)
 
     if (error) throw error;
-
+    
     const transformedUsers: User[] = data.map(user => ({
       id: user.id,
       name: user.name,
@@ -44,6 +46,7 @@ export async function getUsers() {
       cedula: user.identification,
       role: user.rol,
       status: user.state ? "Activo" : "Inactivo",
+      id_hikvision:user.id_hikvision,
       fingerprintRegistered: false,
     }));
 
@@ -88,7 +91,8 @@ export async function createUser(userData: UserFormData) {
         identification: userData.cedula,
         rol: userData.role,
         state: userData.status === "Activo",
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        id_hikvision: parseInt(userData.id_hikvision),
       });
       await supabase.from("reports").insert({
         user_id: userId,
@@ -122,7 +126,9 @@ export async function updateUser(userId: string, userData: Omit<UserFormData, 'p
         email: userData.email,
         identification: userData.cedula,
         rol: userData.role,
-        state: userData.status === "Activo"
+        state: userData.status === "Activo",
+        id_hikvision: parseInt(userData.id_hikvision),
+
       })
       .eq('id', userId);
 

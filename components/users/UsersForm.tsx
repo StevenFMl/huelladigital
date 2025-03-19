@@ -10,8 +10,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Fingerprint } from "lucide-react"
 import type { User, UserFormData } from "@/components/users/action"
 
 interface UserFormProps {
@@ -26,6 +24,7 @@ export default function UserForm({ user, onSubmit }: UserFormProps) {
     cedula: user?.cedula || "",
     role: user?.role || "",
     status: user?.status || "Activo",
+    id_hikvision: user?.id_hikvision|| 0,
     fingerprintRegistered: user?.fingerprintRegistered || false,
   })
 
@@ -62,6 +61,10 @@ export default function UserForm({ user, onSubmit }: UserFormProps) {
         <div>
           <Label htmlFor="email">Email</Label>
           <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required />
+        </div>
+        <div>
+          <Label htmlFor="id_hikvision">Id HikVision</Label>
+          <Input id="id_hikvision" name="id_hikvision" type="text" value={formData.id_hikvision} onChange={handleChange} required />
         </div>
         <div>
           <Label htmlFor="role">Rol</Label>
