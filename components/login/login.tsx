@@ -35,11 +35,10 @@ export default function Login() {
       const result = await login(formData)
       if (result==false)
       {
-        alert ('error')
+        alert ('Credenciales Incorrectas')
       }
     } catch (err) {
       console.error("Login error:", err)
-      setError("Error al iniciar sesión. Por favor, verifica tus credenciales.")
     } finally {
       setIsLoading(false)
     }
